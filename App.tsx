@@ -31,6 +31,35 @@ export default function App() {
     setTaskText(''); 
   }
 
+  //Função para mudar o status da tarefa
+  function handleTaskChangeStatus(taskToChange:{descricao:string; check:boolean}){
+     const updatedTasks = tasks.filter((Task) => Task !== taskToChange);
+     
+     const newTask={
+      descricao: taskToChange.descricao,
+      check: !taskToChange.check //Se a tarefa está em aberto,ela fecha e vice versa.
+     }
+     updatedTasks.push(newTask);//Atualização da tarefa
+     setTasks(updatedTasks);
+  }
+
+
+   //Função para deletar a tarefa ao clicar no botão
+  function handleTaskDelete(taskToDelete:{descricao:string; check:boolean}){
+   Alert.alert("Atenção!", `Deseja remover a tarefa ${taskToDelete.descricao}` ,
+   [
+    {text: "Sim",
+      onPress: () =>{
+      const updatedTasks = tasks.filter((Task) => Task != taskToDelete)
+      setTasks(updatedTasks);
+    }
+    },
+    {text: "Cancelar", style:"cancel"} 
+   ]
+  )
+ }
+
+
   //Função para incrementar no contador a quantidade de tarefas cadastradas
   useEffect(()=> {
       let totalTasks = tasks.length;  
@@ -50,9 +79,9 @@ export default function App() {
       </InputAddTask>
 
        <View style={{flexDirection:"row",gap:16}}>
-           <CardNumber></CardNumber>
-           <CardNumber></CardNumber>
-           <CardNumber></CardNumber>
+           <CardNumber title={"Cadastradas"} num={countTask} color='#1a1c27'></CardNumber>
+           <CardNumber title={"Em Aberto"} num={0} color='#b5a914'></CardNumber>
+           <CardNumber title={"Finalizadas"} num={0} color='#00a200'></CardNumber>
        </View>     
      
       
@@ -63,7 +92,12 @@ export default function App() {
       keyExtractor={(item,index)=>index.toString()}
       renderItem={
         ({item})=>(
-          <Task></Task>
+          <Task 
+          title={item.descricao}
+          status={item.check}
+          onCheck={()=>handleTaskChangeStatus(item)}
+          onRemove={()=>handleTaskDelete(item)}>
+          </Task>
         )
       }
       ListEmptyComponent={()=>(

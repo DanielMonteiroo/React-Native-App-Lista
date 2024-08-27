@@ -2,10 +2,10 @@ import styled from "styled-components/native";
 
 //componente de visualização de tarefas
 export const Container = styled.View({
-padding:25,
+padding:12,
 flexDirection: "column",
 backgroundColor: "white",
-borderRadius: 4,
+borderRadius: 9,
 alignItems: "center",
 overflow: "hidden",
 gap:8
