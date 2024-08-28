@@ -14,6 +14,7 @@ export default function App() {
 
   const [countTask,setCountTask] =  useState(0);
 
+ 
   function handleTaskAdd(){
     //Verifica se a tarefa foi adicionada
     if(taskText == ''){
@@ -46,7 +47,7 @@ export default function App() {
 
    //Função para deletar a tarefa ao clicar no botão
   function handleTaskDelete(taskToDelete:{descricao:string; check:boolean}){
-   Alert.alert("Atenção!", `Deseja remover a tarefa ${taskToDelete.descricao}` ,
+   Alert.alert("Atenção!", `Deseja remover a tarefa ${taskToDelete.descricao}?` ,
    [
     {text: "Sim",
       onPress: () =>{
@@ -58,7 +59,6 @@ export default function App() {
    ]
   )
  }
-
 
   //Função para incrementar no contador a quantidade de tarefas cadastradas
   useEffect(()=> {
@@ -80,7 +80,9 @@ export default function App() {
 
        <View style={{flexDirection:"row",gap:16}}>
            <CardNumber title={"Cadastradas"} num={countTask} color='#1a1c27'></CardNumber>
-           <CardNumber title={"Em Aberto"} num={0} color='#b5a914'></CardNumber>
+          
+           <CardNumber title={"Em Aberto"} num={countTask} color='#b5a914'></CardNumber>
+                      
            <CardNumber title={"Finalizadas"} num={0} color='#00a200'></CardNumber>
        </View>     
      
