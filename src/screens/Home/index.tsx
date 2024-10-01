@@ -1,14 +1,15 @@
 
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Alert, FlatList, StyleSheet, Text, View } from 'react-native';
 import { CardNumber } from '../../componentes/CardNumber';
 import { InputAddTask } from '../../componentes/InputAddTask';
 import { Task } from '../../componentes/Task';
+import { TaskContext } from '../../context/TaskContext';
+import { TaskProps } from '../../utils/types';
 
 export default function Home() {
  
-  //Estado da lista de tarefas com descricao e de inicio com array vazio
-  const [tasks,setTasks] = useState<{descricao:string; check:boolean}[]>([]);
+  const {tasks,createTask,setTasks} = useContext(TaskContext)
 
   const [taskText,setTaskText] = useState("");
 
@@ -22,36 +23,37 @@ export default function Home() {
     }
     
     //Verifica se já existe tarefa cadastrada com mesmo nome
-    if(tasks?.some((Task)=>Task.descricao === taskText)){
+    if(tasks?.some((Task)=>Task.title === taskText)){
       return Alert.alert("Erro: Tarefa já existe!");
     }
 
     //Guardar informação de tarefa cadastrada
     const newTask = {descricao: taskText, check: false};
-    setTasks([...tasks, newTask]);
-    setTaskText(''); 
+    createTask(taskText);
+    setTaskText('');
   }
 
   //Função para mudar o status da tarefa
-  function handleTaskChangeStatus(taskToChange:{descricao:string; check:boolean}){
-     const updatedTasks = tasks.filter((Task) => Task !== taskToChange);
+  function handleTaskChangeStatus(taskToChange:TaskProps){
+     const updatedTasks = tasks.filter((Task) => Task.title !== taskToChange.title);
      
      const newTask={
-      descricao: taskToChange.descricao,
-      check: !taskToChange.check //Se a tarefa está em aberto,ela fecha e vice versa.
-     }
+      title: taskToChange.title,
+      id: taskToChange.id, //Se a tarefa está em aberto,ela fecha e vice versa.
+      status: !taskToChange.status 
+    }
      updatedTasks.push(newTask);//Atualização da tarefa
      setTasks(updatedTasks);
   }
 
 
    //Função para deletar a tarefa ao clicar no botão
-  function handleTaskDelete(taskToDelete:{descricao:string; check:boolean}){
-   Alert.alert("Atenção!", `Deseja remover a tarefa ${taskToDelete.descricao}?` ,
+  function handleTaskDelete(taskToDelete:TaskProps){
+   Alert.alert("Atenção!", `Deseja remover a tarefa ${taskToDelete.title}?` ,
    [
     {text: "Sim",
       onPress: () =>{
-      const updatedTasks = tasks.filter((Task) => Task != taskToDelete)
+      const updatedTasks = tasks.filter((Task) => Task.title != taskToDelete.title)
       setTasks(updatedTasks);
     }
     },
@@ -93,8 +95,9 @@ export default function Home() {
       renderItem={
         ({item})=>(
           <Task 
-          title={item.descricao}
-          status={item.check}
+          id={item.id}
+          title={item.title}
+          status={item.status}
           onCheck={()=>handleTaskChangeStatus(item)}
           onRemove={()=>handleTaskDelete(item)}>
           </Task>
