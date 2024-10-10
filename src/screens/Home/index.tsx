@@ -6,31 +6,31 @@ import { InputAddTask } from '../../componentes/InputAddTask';
 import { Task } from '../../componentes/Task';
 import { TaskContext } from '../../context/TaskContext';
 import { TaskProps } from '../../utils/types';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
+import { TaskText } from '../../componentes/Task/styles';
 
 export default function Home() {
  
   const {tasks,createTask,setTasks} = useContext(TaskContext)
 
-  const [taskText,setTaskText] = useState("");
-
   const [countTask,setCountTask] =  useState(0);
 
+  const TaskSchema = Yup.object().shape({
+   TaskText: Yup.string()
+   .min(4,"Mínimo 4 caracteres")
+   .max(16,"Máximo 16 caracteres")
+   .required("Tarefa não pode ser vazia")
+  });
+
  
-  function handleTaskAdd(){
-    //Verifica se a tarefa foi adicionada
-    if(taskText == ''){
-      return Alert.alert("Erro: Tarefa sem descrição!");
-    }
-    
+  function handleTaskAdd(taskText: string){
+     
     //Verifica se já existe tarefa cadastrada com mesmo nome
     if(tasks?.some((Task)=>Task.title === taskText)){
       return Alert.alert("Erro: Tarefa já existe!");
     }
-
-    //Guardar informação de tarefa cadastrada
-    const newTask = {descricao: taskText, check: false};
     createTask(taskText);
-    setTaskText('');
   }
 
   //Função para mudar o status da tarefa
@@ -71,12 +71,29 @@ export default function Home() {
 
   return (
     <View style={styles.container}>
-               
-      <InputAddTask 
-      onPress={handleTaskAdd} 
-      onChangeText={setTaskText}
-      value={taskText}>
-      </InputAddTask>
+
+      <Formik initialValues={{TaskText: ''}}
+      validationSchema={TaskSchema}
+      onSubmit={(values,{resetForm})=>{
+       handleTaskAdd(values.TaskText)
+       resetForm({values: {TaskText:''}})
+      }}
+      >
+        {({handleSubmit,handleChange,handleBlur,values,errors,touched}) =>(
+         <View>
+         <InputAddTask onPress={handleSubmit} onChangeText={handleChange('taskText')} 
+         onBlur={handleBlur('taskText')}
+         value={values.TaskText}>
+         </InputAddTask>
+
+         {touched.TaskText && errors.TaskText && (
+          <Text style={{color:'red'}}>{errors.TaskText}</Text>
+         )}
+
+         </View>
+        )}  
+      
+      </Formik>      
 
        <View style={{flexDirection:"row",gap:16}}>
            <CardNumber title={"Cadastradas"} num={countTask} color='#1a1c27'></CardNumber>
